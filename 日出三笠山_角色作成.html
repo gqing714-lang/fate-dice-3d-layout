@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>日出三笠山 ─ 角色作成</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#18161f;color:#d4c5a9;font-family:'Noto Serif SC','Hiragino Mincho ProN','Yu Mincho',serif;padding:20px 16px;max-width:480px;margin:0 auto;min-height:100vh}
+  header{text-align:center;margin-bottom:24px}
+  header h1{font-size:24px;font-weight:400;letter-spacing:6px;color:#c9a0dc}
+  header p{font-size:11px;color:#8a7e9b;letter-spacing:3px;margin-top:4px}
+  nav{display:flex;border-bottom:1px solid #2e2a38;margin-bottom:20px}
+  nav button{flex:1;background:0;color:#6b6380;border:none;border-bottom:2px solid transparent;padding:10px 0;font-size:12px;letter-spacing:2px;cursor:pointer;font-family:inherit;transition:all .2s}
+  nav button.active{background:#242030;color:#c9a0dc;border-bottom-color:#c9a0dc}
+  .page{display:none}.page.active{display:block}
+  label.field{display:block;margin-bottom:2px}
+  label.field span{font-size:11px;color:#8a7e9b;letter-spacing:1px}
+  input[type="text"],input[type="number"],textarea,select{width:100%;background:#242030;border:1px solid #2e2a38;color:#d4c5a9;font-size:13px;padding:6px 8px;font-family:inherit;margin-top:2px}
+  select{appearance:auto}
+  textarea{resize:none;height:60px}
+  input[type="number"]{-moz-appearance:textfield}
+  .row{display:flex;gap:8px}.row>*{flex:1}
+  .gap{height:10px}
+  .divider{border-top:1px solid #2e2a38;padding-top:12px;margin-top:8px}
+  .hint{font-size:11px;color:#6b6380;margin-bottom:8px;line-height:1.5}
+  .sub-label{font-size:11px;color:#6b6380;letter-spacing:2px;margin-bottom:8px}
+  .field-group{margin-bottom:10px}
+  .attr-bar{padding:10px 14px;margin-bottom:16px;font-size:13px;display:flex;justify-content:space-between;transition:background .3s}
+  .attr-row{display:flex;align-items:center;padding:8px 0;border-bottom:1px solid #2e2a38}
+  .attr-row span.lbl{width:90px;font-size:13px;letter-spacing:1px}
+  .attr-row input[type="range"]{flex:1;accent-color:#c9a0dc}
+  .attr-row input[type="number"]{width:48px;text-align:center;margin-left:8px;padding:4px 0;font-size:14px}
+  .derived-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-top:16px}
+  .derived-box{text-align:center;padding:10px 0;background:#1e1c28;border:1px solid #2e2a38}
+  .derived-box .d-label{font-size:10px;color:#6b6380;letter-spacing:2px}
+  .derived-box .d-val{font-size:22px;color:#c9a0dc;margin-top:2px}
+  .skill-row{display:flex;align-items:center;padding:6px 0;border-bottom:1px solid #1e1c28}
+  .skill-row .s-name{width:90px;font-size:12px}
+  .skill-row .s-init{width:30px;font-size:11px;color:#6b6380;text-align:right}
+  .skill-row input[type="number"]{width:44px;text-align:center;margin-left:6px;padding:3px 0;font-size:13px}
+  .skill-row .s-total{margin-left:8px;font-size:13px;color:#c9a0dc;width:36px;text-align:right}
+  .choice-btns{display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap}
+  .choice-btns button{padding:4px 8px;font-size:11px;background:0;color:#6b6380;border:1px solid #2e2a38;cursor:pointer;font-family:inherit}
+  .choice-btns button.active{background:#2e2a38;color:#c9a0dc}
+  .custom-row{display:flex;gap:6px;margin-bottom:6px;align-items:center}
+  .custom-row input[type="text"]{width:90px;font-size:12px;padding:4px 6px}
+  .custom-row .arrow{font-size:11px;color:#6b6380}
+  .custom-row input[type="number"]{width:48px;text-align:center;padding:4px 0;font-size:13px}
+  .skill-total-bar{margin-top:12px;padding:8px 14px;background:#242030;font-size:12px}
+  .onmyou-box{margin-bottom:12px;padding:10px;background:#1e1c28;border:1px solid #2e2a38}
+  .btn-export{width:100%;padding:12px 0;background:#c9a0dc;color:#18161f;border:none;font-size:14px;letter-spacing:3px;cursor:pointer;font-family:inherit;margin-bottom:16px}
+  .btn-copy{width:100%;padding:10px 0;background:0;color:#c9a0dc;border:1px solid #2e2a38;font-size:13px;letter-spacing:2px;cursor:pointer;font-family:inherit;margin-top:8px}
+  #exportResult{background:#1e1c28;padding:14px;font-size:12px;line-height:1.7;white-space:pre-wrap;word-break:break-all;max-height:400px;overflow:auto;border:1px solid #2e2a38;display:none}
+  .preset-card{padding:10px;background:#1e1c28;border:1px solid #2e2a38;margin-bottom:8px;cursor:pointer;transition:border-color .2s}
+  .preset-card:hover{border-color:#c9a0dc}
+  .preset-card .pc-title{font-size:13px;color:#c9a0dc}
+  .preset-card .pc-desc{font-size:11px;color:#6b6380;margin-top:4px;line-height:1.5}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>日出三笠山</h1>
+  <p>─ The Moon That Never Sets ─</p>
+</header>
+
+<nav id="tabs">
+  <button class="active" data-tab="info">人物</button>
+  <button data-tab="attr">属性</button>
+  <button data-tab="skill">技能</button>
+  <button data-tab="onmyou">特殊</button>
+  <button data-tab="export">导出</button>
+</nav>
+
+<!-- 人物 -->
+<div id="info" class="page active">
+  <div class="divider" style="border:none;padding:0;margin:0 0 12px">
+    <p class="sub-label">预设动机（可选，点击填入）</p>
+    <div class="preset-card" onclick="fillPreset('koshi')">
+      <div class="pc-title">贵公子</div>
+      <div class="pc-desc">情场老手，欲将"月上姬"纳入收藏</div>
+    </div>
+    <div class="preset-card" onclick="fillPreset('chijin')">
+      <div class="pc-title">知情人</div>
+      <div class="pc-desc">与大江赖昌相识，怀疑月上姬传说与其失踪之女有关</div>
+    </div>
+    <div class="preset-card" onclick="fillPreset('nakifu')">
+      <div class="pc-title">泣妇</div>
+      <div class="pc-desc">丈夫/情郎前往奈良后一去不返，急切盼其归来</div>
+    </div>
+    <div class="preset-card" onclick="fillPreset('kajin')">
+      <div class="pc-title">咏月的歌人</div>
+      <div class="pc-desc">欲以月上姬为灵感完成咏月长歌</div>
+    </div>
+    <p class="hint" style="margin-top:8px">以上皆非必选。可完全自由设定，只需有从平安京前往奈良的理由。</p>
+  </div>
+  <div class="divider">
+    <p class="sub-label">基本信息</p>
+    <div class="field-group"><label class="field"><span>名前</span><input type="text" id="f_name" placeholder="姓+名（参考：藤原、源、平、橘、大江、安倍、在原…）"></label></div>
+    <div class="field-group"><label class="field"><span>通称</span><input type="text" id="f_alias" placeholder="日常称呼"></label></div>
+    <div class="row field-group">
+      <label class="field"><span>性别</span>
+        <select id="f_gender"><option value="男">男</option><option value="女">女</option></select>
+      </label>
+      <label class="field"><span>年龄</span><input type="number" id="f_age" value="20" min="10" max="60"></label>
+    </div>
+    <div class="field-group">
+      <label class="field"><span>身份/官职</span><input type="text" id="f_identity" placeholder="公卿/阴阳师/僧侣/検非違使/武士/女房…"></label>
+    </div>
+    <div class="field-group">
+      <label class="field"><span>阶级</span>
+        <select id="f_class">
+          <option value="殿上人（三品以上）">殿上人（三品以上）</option>
+          <option value="中层公卿（四～五品）" selected>中层公卿（四～五品）</option>
+          <option value="下层贵族（六品以下）">下层贵族（六品以下）</option>
+          <option value="武家">武家</option>
+          <option value="僧侣/神官">僧侣/神官</option>
+          <option value="庶民/其他">庶民/其他</option>
+        </select>
+      </label>
+    </div>
+  </div>
+  <div class="divider">
+    <p class="sub-label">外貌与个性</p>
+    <div class="field-group"><label class="field"><span>外貌描述</span><textarea id="f_appear" placeholder="容貌、发型、衣着（十二单？狩衣？）"></textarea></label></div>
+    <div class="field-group"><label class="field"><span>信念</span><textarea id="f_belief" placeholder="角色信奉的价值观或人生态度" style="height:40px"></textarea></label></div>
+    <div class="field-group"><label class="field"><span>性格特征</span><textarea id="f_trait" placeholder=""></textarea></label></div>
+  </div>
+  <div class="divider">
+    <p class="sub-label">背景</p>
+    <div class="field-group"><label class="field"><span>身世与经历</span><textarea id="f_bg"></textarea></label></div>
+    <div class="field-group"><label class="field"><span>前往奈良的理由</span><textarea id="f_reason" style="height:40px"></textarea></label></div>
+    <div class="field-group"><label class="field"><span>重要关联人物（可选）</span><textarea id="f_related" style="height:40px" placeholder="与某NPC或其他PC的关系"></textarea></label></div>
+  </div>
+  <div class="divider">
+    <p class="sub-label">随身物品</p>
+    <div class="field-group"><input type="text" id="item1" placeholder="物品 1" style="margin-bottom:4px"></div>
+    <div class="field-group"><input type="text" id="item2" placeholder="物品 2" style="margin-bottom:4px"></div>
+    <div class="field-group"><input type="text" id="item3" placeholder="物品 3" style="margin-bottom:4px"></div>
+    <div class="field-group"><input type="text" id="item4" placeholder="物品 4" style="margin-bottom:4px"></div>
+    <div class="field-group"><input type="text" id="item5" placeholder="物品 5"></div>
+  </div>
+</div>
+
+<!-- 属性 -->
+<div id="attr" class="page">
+  <div class="attr-bar" id="attrBar">
+    <span id="attrTotal">合计 400 / 470</span>
+    <span id="attrRemain">剩余 70</span>
+  </div>
+  <div id="attrSliders"></div>
+  <div class="attr-row">
+    <span class="lbl">幸运</span>
+    <input type="range" min="15" max="90" value="50" id="luck_range" oninput="syncLuck(this.value)">
+    <input type="number" value="50" id="luck_num" style="width:48px;text-align:center;margin-left:8px;padding:4px 0;font-size:14px" oninput="syncLuck(this.value)">
+  </div>
+  <div class="derived-grid">
+    <div class="derived-box"><div class="d-label">HP</div><div class="d-val" id="dHP">0</div></div>
+    <div class="derived-box"><div class="d-label">MP</div><div class="d-val" id="dMP">0</div></div>
+    <div class="derived-box"><div class="d-label">SAN</div><div class="d-val" id="dSAN">0</div></div>
+    <div class="derived-box"><div class="d-label">闪避</div><div class="d-val" id="dDodge">0</div></div>
+  </div>
+</div>
+
+<!-- 技能 -->
+<div id="skill" class="page">
+  <p class="hint">平安时代适用技能。技能点建议 EDU×4 + INT×2。</p>
+  <div id="skillRows"></div>
+  <div class="divider">
+    <p class="sub-label">战斗技能（选一主修）</p>
+    <div class="choice-btns" id="combatBtns"></div>
+    <div class="skill-row">
+      <span class="s-name" id="combatLabel">斗殴</span>
+      <span class="s-init" id="combatInit">25+</span>
+      <input type="number" value="0" min="0" id="combatPts" oninput="updateSkillTotals()">
+      <span class="s-total" id="combatTotal">= 25</span>
+    </div>
+  </div>
+  <div class="divider">
+    <p class="sub-label">自选技能</p>
+    <div class="custom-row"><input type="text" id="cust1name" placeholder="自选1"><span class="arrow">→</span><input type="number" id="cust1pts" value="0" min="0" oninput="updateSkillTotals()"></div>
+    <div class="custom-row"><input type="text" id="cust2name" placeholder="自选2"><span class="arrow">→</span><input type="number" id="cust2pts" value="0" min="0" oninput="updateSkillTotals()"></div>
+    <div class="custom-row"><input type="text" id="cust3name" placeholder="自选3"><span class="arrow">→</span><input type="number" id="cust3pts" value="0" min="0" oninput="updateSkillTotals()"></div>
+  </div>
+  <div class="skill-total-bar">技能加点合计：<span id="skillTotal">0</span></div>
+</div>
+
+<!-- 特殊 -->
+<div id="onmyou" class="page">
+  <p class="hint" style="margin-bottom:16px;line-height:1.6">阴阳道为专攻制技能（每项基础1%），仅限阴阳师或习得者。非阴阳师角色可跳过此页。</p>
+  <p class="sub-label">阴阳道专攻</p>
+  <div class="onmyou-box">
+    <div class="field-group"><label class="field"><span>专攻名（如：数术、符术、辟邪、天文…）</span><input type="text" id="om1name" placeholder="例：数术"></label></div>
+    <div class="row field-group">
+      <label class="field"><span>加点</span><input type="number" id="om1pts" value="0" min="0"></label>
+      <label class="field"><span>效果备注</span><input type="text" id="om1note" placeholder="例：定身符"></label>
+    </div>
+  </div>
+  <div class="onmyou-box">
+    <div class="field-group"><label class="field"><span>专攻名</span><input type="text" id="om2name"></label></div>
+    <div class="row field-group">
+      <label class="field"><span>加点</span><input type="number" id="om2pts" value="0" min="0"></label>
+      <label class="field"><span>效果备注</span><input type="text" id="om2note"></label>
+    </div>
+  </div>
+  <div class="onmyou-box">
+    <div class="field-group"><label class="field"><span>专攻名</span><input type="text" id="om3name"></label></div>
+    <div class="row field-group">
+      <label class="field"><span>加点</span><input type="number" id="om3pts" value="0" min="0"></label>
+      <label class="field"><span>效果备注</span><input type="text" id="om3note"></label>
+    </div>
+  </div>
+</div>
+
+<!-- 导出 -->
+<div id="export" class="page">
+  <button class="btn-export" onclick="doExport()">生成角色卡</button>
+  <pre id="exportResult"></pre>
+  <button class="btn-copy" id="copyBtn" onclick="doCopy()" style="display:none">复制到剪贴板</button>
+</div>
+
+<script>
+const ATTRS=[
+  {key:"STR",label:"力量 STR"},{key:"CON",label:"体質 CON"},
+  {key:"SIZ",label:"体型 SIZ"},{key:"DEX",label:"敏捷 DEX"},
+  {key:"APP",label:"容貌 APP"},{key:"INT",label:"知力 INT"},
+  {key:"POW",label:"意志 POW"},{key:"EDU",label:"教養 EDU"},
+];
+const SKILLS=[
+  {key:"侦查",init:25},{key:"聆听",init:20},{key:"图书馆",init:20},
+  {key:"察言观色",init:5,note:"(心理学)"},{key:"急救",init:30},
+  {key:"和歌",init:20,note:"(新增)"},{key:"政治",init:5,note:"(新增)"},
+  {key:"闪避",init:0,derived:true},{key:"追踪",init:10},
+  {key:"潜行",init:20},{key:"攀爬",init:20},{key:"游泳",init:20},
+  {key:"话术",init:5},{key:"魅惑",init:15},{key:"威吓",init:15},
+  {key:"说服",init:10},{key:"神秘学",init:5},{key:"历史",init:5},
+  {key:"外语·汉文",init:1},
+];
+const COMBAT_OPTS=[
+  {name:"斗殴",init:25},{name:"刀/太刀",init:25},
+  {name:"弓术",init:15},{name:"薙刀/枪",init:20},{name:"投掷",init:20},
+];
+
+let attrVals={}; ATTRS.forEach(a=>attrVals[a.key]=50);
+let combatChoice=COMBAT_OPTS[0];
+
+// tabs
+document.querySelectorAll('#tabs button').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('#tabs button').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+  });
+});
+
+// attr sliders
+const sliderBox=document.getElementById('attrSliders');
+ATTRS.forEach(a=>{
+  const row=document.createElement('div');row.className='attr-row';
+  row.innerHTML=`<span class="lbl">${a.label}</span>
+    <input type="range" min="15" max="90" value="50" id="r_${a.key}" oninput="setAttr('${a.key}',this.value)">
+    <input type="number" value="50" id="n_${a.key}" style="width:48px;text-align:center;margin-left:8px;padding:4px 0;font-size:14px" oninput="setAttr('${a.key}',this.value)">`;
+  sliderBox.appendChild(row);
+});
+
+function setAttr(key,val){
+  val=Math.max(1,Math.min(99,parseInt(val)||0));
+  attrVals[key]=val;
+  document.getElementById('r_'+key).value=val;
+  document.getElementById('n_'+key).value=val;
+  updateDerived();
+}
+function syncLuck(v){
+  v=Math.max(1,Math.min(99,parseInt(v)||0));
+  document.getElementById('luck_range').value=v;
+  document.getElementById('luck_num').value=v;
+}
+function updateDerived(){
+  const total=Object.values(attrVals).reduce((s,v)=>s+v,0);
+  const rem=470-total;
+  const bar=document.getElementById('attrBar');
+  document.getElementById('attrTotal').textContent=`合计 ${total} / 470`;
+  const rs=document.getElementById('attrRemain');
+  if(rem===0){rs.textContent='✓ 分配完毕';rs.style.color='#8ab87a';bar.style.background='#252a30'}
+  else if(rem<0){rs.textContent=`超出 ${-rem}`;rs.style.color='#b87a7a';bar.style.background='#2a2025'}
+  else{rs.textContent=`剩余 ${rem}`;rs.style.color='#c9a0dc';bar.style.background='#242030'}
+  document.getElementById('dHP').textContent=Math.floor((attrVals.CON+attrVals.SIZ)/10);
+  document.getElementById('dMP').textContent=Math.floor(attrVals.POW/5);
+  document.getElementById('dSAN').textContent=attrVals.POW;
+  document.getElementById('dDodge').textContent=Math.floor(attrVals.DEX/2);
+  updateSkillTotals();
+}
+
+// skills
+const skillBox=document.getElementById('skillRows');
+SKILLS.forEach(s=>{
+  const row=document.createElement('div');row.className='skill-row';row.dataset.skill=s.key;
+  const initVal=s.derived?Math.floor(attrVals.DEX/2):s.init;
+  const label=s.note?`${s.key} <span style="color:#6b6380;font-size:10px">${s.note}</span>`:s.key;
+  row.innerHTML=`<span class="s-name">${label}</span>
+    <span class="s-init">${initVal}+</span>
+    <input type="number" value="0" min="0" id="sk_${s.key}" oninput="updateSkillTotals()">
+    <span class="s-total">= ${initVal}</span>`;
+  skillBox.appendChild(row);
+});
+
+// combat
+const combatBox=document.getElementById('combatBtns');
+COMBAT_OPTS.forEach(c=>{
+  const btn=document.createElement('button');
+  btn.textContent=c.name;
+  if(c.name===combatChoice.name)btn.classList.add('active');
+  btn.onclick=()=>{
+    combatChoice=c;
+    combatBox.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('combatLabel').textContent=c.name;
+    document.getElementById('combatInit').textContent=c.init+'+';
+    updateSkillTotals();
+  };
+  combatBox.appendChild(btn);
+});
+
+function updateSkillTotals(){
+  const dodge=Math.floor(attrVals.DEX/2);
+  let total=0;
+  SKILLS.forEach(s=>{
+    const pts=parseInt(document.getElementById('sk_'+s.key).value)||0;
+    const init=s.derived?dodge:s.init;
+    const row=document.querySelector(`[data-skill="${s.key}"]`);
+    if(row){row.querySelector('.s-init').textContent=init+'+';row.querySelector('.s-total').textContent='= '+(init+pts)}
+    total+=pts;
+  });
+  const cp=parseInt(document.getElementById('combatPts').value)||0;
+  document.getElementById('combatTotal').textContent='= '+(combatChoice.init+cp);
+  total+=cp;
+  for(let i=1;i<=3;i++)total+=parseInt(document.getElementById('cust'+i+'pts').value)||0;
+  document.getElementById('skillTotal').textContent=total;
+}
+
+// presets
+function fillPreset(type){
+  const presets={
+    koshi:{reason:'将月上姬纳入自己的情人收藏之中',identity:'公卿',trait:'浪漫多情，将恋爱视作人生的养分'},
+    chijin:{reason:'怀疑月上姬的传说与大江赖昌失踪的女儿有关，前往调查',identity:'阴阳师',trait:'正直沉稳，好奇心旺盛'},
+    nakifu:{reason:'丈夫/情郎前往奈良后音讯全无，急切前往寻找',identity:'公卿女子',trait:'深情而坚韧'},
+    kajin:{reason:'欲以月上姬为灵感完成咏月长歌，踏上旅途',identity:'歌人',trait:'感性，追求美与真实'},
+  };
+  const p=presets[type];
+  if(p){
+    document.getElementById('f_reason').value=p.reason;
+    document.getElementById('f_identity').value=p.identity;
+    document.getElementById('f_trait').value=p.trait;
+  }
+}
+
+function v(id){return document.getElementById(id).value}
+
+function doExport(){
+  const dodge=Math.floor(attrVals.DEX/2);
+  const hp=Math.floor((attrVals.CON+attrVals.SIZ)/10);
+  const mp=Math.floor(attrVals.POW/5);
+  const total=Object.values(attrVals).reduce((s,v)=>s+v,0);
+  let lines=[
+    `═══ 日出三笠山 ─ 角色卡 ═══\n`,
+    `【基本信息】`,
+    `名前：${v('f_name')}`,`通称：${v('f_alias')}`,
+    `性别：${v('f_gender')}　年龄：${v('f_age')}`,
+    `身份：${v('f_identity')}　阶级：${v('f_class')}`,
+    `外貌：${v('f_appear')}`,
+    `信念：${v('f_belief')}`,
+    `性格：${v('f_trait')}\n`,
+    `【属性】（合计 ${total}/470）`,
+  ];
+  ATTRS.forEach(a=>lines.push(`${a.label}：${attrVals[a.key]}`));
+  lines.push(`幸运：${v('luck_num')}`);
+  lines.push(`───`);
+  lines.push(`HP：${hp}　MP：${mp}　SAN：${attrVals.POW}　闪避：${dodge}\n`);
+  lines.push(`【技能】`);
+  SKILLS.forEach(s=>{
+    const pts=parseInt(document.getElementById('sk_'+s.key).value)||0;
+    const init=s.derived?dodge:s.init;
+    if(pts>0||s.init>=15)lines.push(`${s.key}：${init+pts}（初始${init}+${pts}）`);
+  });
+  const cp=parseInt(v('combatPts'))||0;
+  lines.push(`${combatChoice.name}：${combatChoice.init+cp}（初始${combatChoice.init}+${cp}）`);
+  for(let i=1;i<=3;i++){const n=v('cust'+i+'name'),p=parseInt(v('cust'+i+'pts'))||0;if(n)lines.push(`${n}：${p}`)}
+  lines.push(``);
+  // onmyou
+  let hasOm=false;
+  for(let i=1;i<=3;i++){
+    const n=v('om'+i+'name');
+    if(n){
+      if(!hasOm){lines.push(`【阴阳道】`);hasOm=true}
+      const p=parseInt(v('om'+i+'pts'))||0;
+      const note=v('om'+i+'note');
+      lines.push(`${n}：${1+p}（初始1+${p}）${note?'　备注：'+note:''}`);
+    }
+  }
+  if(hasOm)lines.push(``);
+  lines.push(`【随身物品】`);
+  for(let i=1;i<=5;i++){const it=v('item'+i);if(it)lines.push(`${i}. ${it}`)}
+  lines.push(``);
+  lines.push(`【背景】`);
+  lines.push(`身世：${v('f_bg')}`);
+  lines.push(`前往奈良的理由：${v('f_reason')}`);
+  if(v('f_related'))lines.push(`关联人物：${v('f_related')}`);
+
+  const result=document.getElementById('exportResult');
+  result.textContent=lines.join('\n');
+  result.style.display='block';
+  document.getElementById('copyBtn').style.display='block';
+}
+
+function doCopy(){
+  const text=document.getElementById('exportResult').textContent;
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn=document.getElementById('copyBtn');
+    btn.textContent='已复制 ✓';setTimeout(()=>btn.textContent='复制到剪贴板',1500);
+  });
+}
+
+updateDerived();
+</script>
+</body>
+</html>
